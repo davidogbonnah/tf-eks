@@ -63,5 +63,5 @@ variable "max_size" {
 variable "min_size" {
   description = "The minimum number of worker nodes in the EKS node group."
   type        = number
-  default     = 1
+  default     = 2
 }
