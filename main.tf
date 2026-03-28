@@ -59,6 +59,10 @@ resource "aws_eks_cluster" "eks_cluster" {
     public_access_cidrs = var.public_access_cidrs
   }
 
+  access_config {
+    authentication_mode = "API_AND_CONFIG_MAP"
+  }
+
   encryption_config {
     provider {
       key_arn = aws_kms_key.eks_kms_key.arn # KMS key for encryption
@@ -124,7 +128,7 @@ resource "aws_eks_node_group" "eks_node_group" {
 
   instance_types = [var.instance_type]
   
-  ami_type       = "AL2_x86_64"
+  ami_type       = "AL2023_x86_64_STANDARD"
   capacity_type  = "ON_DEMAND"
 
   update_config {
