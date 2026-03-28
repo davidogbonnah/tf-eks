@@ -6,6 +6,9 @@ locals {
     ManagedBy    = "Terraform"
     ContactEmail = var.org_owner_email
   }
+
+  cluster_role_name = "${replace(title(replace(var.cluster_name, "-", " ")), " ", "")}Role"
+  cluster_node_role_name = "${replace(title(replace(var.cluster_name, "-", " ")), " ", "")}NodeRole"
 }
 
 resource "aws_iam_role" "eks_cluster_role" {
@@ -90,7 +93,7 @@ resource "aws_eks_cluster" "eks_cluster" {
 }
 
 resource "aws_iam_role" "eks_node_role" {
-  name = "${var.cluster_name}-node-role"
+  name = local.cluster_node_role_name
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
