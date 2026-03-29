@@ -7,8 +7,17 @@ locals {
     ContactEmail = var.org_owner_email
   }
 
+  cluster_role_prefix = replace(title(replace(var.cluster_name, "-", " ")), " ", "")
   cluster_role_name = "EKS${replace(title(replace(var.cluster_name, "-", " ")), " ", "")}Role"
   cluster_node_role_name = "EKS${replace(title(replace(var.cluster_name, "-", " ")), " ", "")}NodeRole"
+
+  # If Terraform is running under an assumed role, aws_caller_identity returns an STS session ARN.
+  # EKS access entries require the backing IAM role ARN, so normalize assumed-role sessions back to role ARNs.
+  terraform_execution_principal_arn = can(regex("^arn:[^:]+:sts::[0-9]+:assumed-role/.+/[^/]+$", data.aws_caller_identity.current.arn)) ? replace(
+    data.aws_caller_identity.current.arn,
+    "/^arn:([^:]+):sts::([0-9]+):assumed-role\\/(.+)\\/[^\\/]+$/",
+    "arn:$1:iam::$2:role/$3",
+  ) : data.aws_caller_identity.current.arn
 }
 
 resource "aws_iam_role" "eks_cluster_role" {
@@ -150,4 +159,23 @@ resource "aws_eks_node_group" "eks_node_group" {
     aws_iam_role_policy_attachment.eks_worker_node_policies
   ]
 }
-  
+
+resource "aws_eks_access_entry" "tf_cluster_admin" {
+  cluster_name      = aws_eks_cluster.eks_cluster.name
+  principal_arn     = local.terraform_execution_principal_arn
+  kubernetes_groups = [var.eks_cluster_admin_k8s_group]
+  type              = "STANDARD"
+  tags              = local.tags
+}
+
+resource "aws_eks_access_policy_association" "tf_cluster_admin" {
+  cluster_name  = aws_eks_cluster.eks_cluster.name
+  principal_arn = local.terraform_execution_principal_arn
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+
+  access_scope {
+    type = "cluster"
+  }
+
+  depends_on = [aws_eks_access_entry.tf_cluster_admin]
+}

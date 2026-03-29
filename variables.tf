@@ -65,3 +65,81 @@ variable "min_size" {
   type        = number
   default     = 2
 }
+
+variable "eks_cluster_admin_principal_arns" {
+  description = "IAM principal ARNs allowed to assume EKS-ClusterAdmin-Role. Defaults to account root when empty."
+  type        = list(string)
+  default     = []
+}
+
+variable "eks_read_only_principal_arns" {
+  description = "IAM principal ARNs allowed to assume EKS-ReadOnly-Role. Defaults to account root when empty."
+  type        = list(string)
+  default     = []
+}
+
+variable "eks_namespace_admin_principal_arns" {
+  description = "IAM principal ARNs allowed to assume EKS-NamespaceAdmin-Role. Defaults to account root when empty."
+  type        = list(string)
+  default     = []
+}
+
+variable "eks_namespace_admin_access_namespaces" {
+  description = "Namespaces EKS-NamespaceAdmin-Role can administer through EKS access policy association."
+  type        = list(string)
+  default     = []
+}
+
+variable "eks_cicd_principal_arns" {
+  description = "Additional IAM principal ARNs allowed to assume EKS-CICD-Deployer-Role."
+  type        = list(string)
+  default     = []
+}
+
+variable "eks_cicd_access_namespaces" {
+  description = "Namespaces EKS-CICD-Deployer-Role can edit/deploy through EKS access policy association. No access policy association is created when empty."
+  type        = list(string)
+  default     = []
+}
+
+variable "github_oidc_provider_arn" {
+  description = "Optional IAM OIDC provider ARN for GitHub Actions federation."
+  type        = string
+  default     = null
+}
+
+variable "github_actions_subject_claims" {
+  description = "Allowed GitHub OIDC subject claims (sub) for EKS-CICD-Deployer-Role, such as repo:org/repo:ref:refs/heads/main."
+  type        = list(string)
+  default     = ["repo:*"]
+}
+
+variable "cicd_ecr_repository_arns" {
+  description = "ECR repository ARNs that CI/CD can push/pull."
+  type        = list(string)
+  default     = ["*"]
+}
+
+variable "eks_cluster_admin_k8s_group" {
+  description = "The name for the Kubernetes Group with Cluster Admin access"
+  type        = string
+  default     = "eks-cluster-admins"
+}
+
+variable "eks_read_only_k8s_group" {
+  description = "The name for the Kubernetes Group with Read Only access"
+  type        = string
+  default     = "eks-read-only"
+}
+
+variable "eks_namespace_admin_k8s_group" {
+  description = "The name for the Kubernetes Group with Namespace Admin access"
+  type        = string
+  default     = "eks-namespace-admins"
+}
+
+variable "eks_cicd_deployer_k8s_group" {
+  description = "The name for the Kubernetes Group with CICD Deployer access"
+  type        = string
+  default     = "eks-cicd-deployers"
+}
