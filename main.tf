@@ -12,7 +12,6 @@ locals {
   cluster_role_prefix = replace(title(replace(var.cluster_name, "-", " ")), " ", "")
   cluster_role_name = "EKS${replace(title(replace(var.cluster_name, "-", " ")), " ", "")}Role"
   cluster_node_role_name = "EKS${replace(title(replace(var.cluster_name, "-", " ")), " ", "")}NodeRole"
-  
 }
 
 resource "aws_iam_role" "eks_cluster_role" {
