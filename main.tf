@@ -12,14 +12,7 @@ locals {
   cluster_role_prefix = replace(title(replace(var.cluster_name, "-", " ")), " ", "")
   cluster_role_name = "EKS${replace(title(replace(var.cluster_name, "-", " ")), " ", "")}Role"
   cluster_node_role_name = "EKS${replace(title(replace(var.cluster_name, "-", " ")), " ", "")}NodeRole"
-
-  # If Terraform is running under an assumed role, aws_caller_identity returns an STS session ARN.
-  # EKS access entries require the backing IAM role ARN, so normalize assumed-role sessions back to role ARNs.
-  terraform_execution_principal_arn = can(regex("^arn:[^:]+:sts::[0-9]+:assumed-role/.+/[^/]+$", data.aws_caller_identity.current.arn)) ? replace(
-    data.aws_caller_identity.current.arn,
-    "/^arn:([^:]+):sts::([0-9]+):assumed-role\\/(.+)\\/[^\\/]+$/",
-    "arn:$1:iam::$2:role/$3",
-  ) : data.aws_caller_identity.current.arn
+  
 }
 
 resource "aws_iam_role" "eks_cluster_role" {
