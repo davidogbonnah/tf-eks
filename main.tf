@@ -163,6 +163,7 @@ resource "aws_eks_node_group" "eks_node_group" {
   ]
 }
 
+/*
 resource "aws_eks_access_entry" "tf_cluster_admin" {
   cluster_name      = aws_eks_cluster.eks_cluster.name
   principal_arn     = local.terraform_execution_principal_arn
@@ -182,3 +183,4 @@ resource "aws_eks_access_policy_association" "tf_cluster_admin" {
 
   depends_on = [aws_eks_access_entry.tf_cluster_admin]
 }
+*/
