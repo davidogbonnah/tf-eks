@@ -45,7 +45,7 @@ variable "endpoint_private_access" {
 variable "instance_type" {
   description = "The instance type for the EKS node group."
   type        = string
-  default     = "t3.small"
+  default     = "t3.medium"
 }
 
 variable "desired_size" {
