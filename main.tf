@@ -9,8 +9,8 @@ locals {
     ContactEmail = var.org_owner_email
   }
 
-  cluster_role_prefix = replace(title(replace(var.cluster_name, "-", " ")), " ", "")
-  cluster_role_name = "EKS${replace(title(replace(var.cluster_name, "-", " ")), " ", "")}Role"
+  cluster_role_prefix    = replace(title(replace(var.cluster_name, "-", " ")), " ", "")
+  cluster_role_name      = "EKS${replace(title(replace(var.cluster_name, "-", " ")), " ", "")}Role"
   cluster_node_role_name = "EKS${replace(title(replace(var.cluster_name, "-", " ")), " ", "")}NodeRole"
 }
 
@@ -34,11 +34,11 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
 }
 
-resource aws_kms_key "eks_kms_key" {
-  description = "KMS key for EKS cluster encryption"
-  key_usage   = "ENCRYPT_DECRYPT"
-  deletion_window_in_days = 7 # Key can be deleted after 7 days
-  enable_key_rotation = true # Key will be rotated every year
+resource "aws_kms_key" "eks_kms_key" {
+  description             = "KMS key for EKS cluster encryption"
+  key_usage               = "ENCRYPT_DECRYPT"
+  deletion_window_in_days = 7    # Key can be deleted after 7 days
+  enable_key_rotation     = true # Key will be rotated every year
 
   tags = {
     Name = "${var.cluster_name}-kms-key"
@@ -52,7 +52,7 @@ resource "aws_eks_cluster" "eks_cluster" {
   version = "1.35" # EKS version set so that the cluster is created with a specific version of Kubernetes
 
   vpc_config {
-    subnet_ids = var.subnet_ids # Cluster built on private subnets, created in VPC Terraform configuration
+    subnet_ids              = var.subnet_ids # Cluster built on private subnets, created in VPC Terraform configuration
     endpoint_private_access = var.endpoint_private_access
 
     # Restricting public access to the cluster to the organization network IP range/known IP ranges
@@ -61,12 +61,12 @@ resource "aws_eks_cluster" "eks_cluster" {
     # Would be advisable to use a VPN or Direct Connect for secure access to the cluster and deployment of workloads
     # with tools like kubectl/helm
     # Once fluent-bit(and any other k8s resources) is deployed, the public access can be disabled
-    endpoint_public_access  = var.endpoint_public_access
-    public_access_cidrs = var.public_access_cidrs
+    endpoint_public_access = var.endpoint_public_access
+    public_access_cidrs    = var.public_access_cidrs
   }
 
   access_config {
-    authentication_mode = "API_AND_CONFIG_MAP"
+    authentication_mode                         = "API_AND_CONFIG_MAP"
     bootstrap_cluster_creator_admin_permissions = true
   }
 
@@ -126,7 +126,7 @@ resource "aws_eks_node_group" "eks_node_group" {
   node_group_name = "${var.cluster_name}-ng"
   node_role_arn   = aws_iam_role.eks_node_role.arn
   subnet_ids      = var.subnet_ids
-  
+
   scaling_config {
     desired_size = var.desired_size
     min_size     = var.min_size
@@ -134,9 +134,9 @@ resource "aws_eks_node_group" "eks_node_group" {
   }
 
   instance_types = [var.instance_type]
-  
-  ami_type       = "AL2023_x86_64_STANDARD"
-  capacity_type  = "ON_DEMAND"
+
+  ami_type      = "AL2023_x86_64_STANDARD"
+  capacity_type = "ON_DEMAND"
 
   update_config {
     max_unavailable = 1 # 1 node at a time replaced during upgrades and health-check-triggered replacement
@@ -155,4 +155,4 @@ resource "aws_eks_node_group" "eks_node_group" {
   ]
 }
 
- 
+
